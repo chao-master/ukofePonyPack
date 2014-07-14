@@ -154,7 +154,7 @@ public class EarthPonyPowers extends PonyPowers {
                     public void run() {
                         event.getPlayer().openWorkbench(null, true);
                     }
-                }.runTaskLater(plugin, 1);
+                }.runTask(plugin);
             }
         }
     }
