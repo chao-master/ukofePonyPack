@@ -23,12 +23,18 @@ import java.io.File;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class EarthPonyPowers extends PonyPowers {
 	private double DAMAGE_MULTIPLIER = 1.1D;
@@ -139,6 +145,19 @@ public class EarthPonyPowers extends PonyPowers {
 			}
 		}
 	}
+    
+    @EventHandler
+    public void onCloseInventory(final InventoryCloseEvent event){        
+        if (isOfActiveType(event.getPlayer())) {
+            if (event.getInventory().getType() == InventoryType.CRAFTING){
+                new BukkitRunnable() {
+                    public void run() {
+                        event.getPlayer().openWorkbench(null, true);
+                    }
+                }.runTask(plugin);
+            }
+        }
+    }
 
 	public void dealingDamage(EntityDamageByEntityEvent event) {
 		double unRounded = event.getDamage() * this.DAMAGE_MULTIPLIER;
@@ -164,4 +183,5 @@ public class EarthPonyPowers extends PonyPowers {
 		event.getBlock().getWorld()
 				.dropItemNaturally(event.getBlock().getLocation(), drops);
 	}
+    
 }

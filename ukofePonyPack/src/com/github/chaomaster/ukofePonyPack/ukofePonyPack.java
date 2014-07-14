@@ -31,6 +31,10 @@ public class ukofePonyPack extends JavaPlugin {
 	public PonyChecker checker = null;
 	private HashMap<String, PonyPowers> ponyPowerMap;
 
+    public static void main(String[] args) {
+        //DEBUG - This is needed to run bukkit in netbeans.
+    }
+    
 	public void onEnable() {
 		this.checker = new PonyChecker(this);
 		ponyPowerMap = new HashMap<String, PonyPowers>();
