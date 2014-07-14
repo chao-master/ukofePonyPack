@@ -20,20 +20,31 @@
 package com.github.chaomaster.ukofePonyPack;
 
 import java.io.File;
+import java.util.HashMap;
+import org.bukkit.Material;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.BrewerInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class ZebraPonyPowers extends PonyPowers {
 
 	public ZebraPonyPowers(ukofePonyPack plugin) {
 		super(plugin);
 	}
-
+    
 	public boolean reloadConfig() {
 		File configFile = new File(this.plugin.getDataFolder(),
 				"ZebraConfig.yml");
@@ -59,4 +70,17 @@ public class ZebraPonyPowers extends PonyPowers {
 		}
 		event.setCancelled(true);
 	}
+    
+    @EventHandler
+    public void onCloseInventory(final InventoryCloseEvent event){        
+        if (isOfActiveType(event.getPlayer())) {
+            if (event.getInventory().getType() == InventoryType.CRAFTING){
+                new BukkitRunnable() {
+                    public void run() {
+                        new PortableBrewing(event.getPlayer(),plugin).showOwner();
+                    }
+                }.runTask(plugin);
+            }
+        }
+    }
 }
