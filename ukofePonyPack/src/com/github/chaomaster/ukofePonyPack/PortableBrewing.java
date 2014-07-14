@@ -48,7 +48,6 @@ public class PortableBrewing implements Listener {
                     isBrewing = false;
                     progress = 0;
                 } else {
-                    plugin.getLogger().info(lastSlots[3].toString());
                     isBrewing = true;
                     if(changedIngredient){
                         progress = 0;
@@ -66,7 +65,7 @@ public class PortableBrewing implements Listener {
                     }
                 }
                 for(HumanEntity viewer: inventory.getViewers()){
-                    viewer.setWindowProperty(InventoryView.Property.BREW_TIME,400-progress);
+                    viewer.setWindowProperty(InventoryView.Property.BREW_TIME,401-progress);
                 }
             };
         }.runTaskTimer(plugin, 1,1);
@@ -135,7 +134,7 @@ public class PortableBrewing implements Listener {
                 case GHAST_TEAR:    effect = 1; break;
                 case BLAZE_POWDER:  effect = 9; break;
                 case NETHER_STALK:
-                    return current==0?10:-1; //Special Case for awkard
+                    return current==0?16:-1; //Special Case for awkard
                 default: return -1;
             }
             if (!awkard & !boosted & !extended){
