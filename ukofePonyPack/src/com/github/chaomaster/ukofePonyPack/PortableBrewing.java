@@ -81,7 +81,7 @@ public class PortableBrewing implements Listener {
         if (potion == null || ingredient == null || potion.getType() != Material.POTION){
             return -1;
         }
-        short rtn = (short) brewHelper(ingredient.getType(),potion.getDurability());
+        short rtn = (short) brewHelper(ingredient,potion.getDurability());
         this.plugin.getLogger().info("Slot "+slot+": "+potion.getDurability()+"+"+ingredient.getType().toString()+"="+rtn);
         return rtn;
     }
@@ -96,7 +96,7 @@ public class PortableBrewing implements Listener {
         return stor.isSimilar(lastSlots[i]);
     }
     
-    static private int brewHelper(Material ingredient,int current){
+    static private int brewHelper(ItemStack ingredient,int current){
         int effect = current & 0xf;
         boolean awkard = (current & 0x10) == 0x10;
         boolean boosted = (current & 0x20) == 0x20;
@@ -104,30 +104,35 @@ public class PortableBrewing implements Listener {
         boolean drinkable = (current & 0x2000) == 0x2000;
         boolean splash = (current & 0x4000) == 0x4000;
         
-        if(ingredient == Material.FERMENTED_SPIDER_EYE){
+        if(ingredient.getType() == Material.FERMENTED_SPIDER_EYE){
             switch (effect){
                 case 0: case 1: case 9: effect = 8; break; //Water/Awk, Regen, Str -> Weakness
                 case 2: case 3: effect = 10; break; //Swift, Fire resist -> Slowness
                 case 4: case 5: case 13: effect = 12; break; //Posion, Healing, Water Beath -> Damaging
                 case 6: effect = 14; break; //Night vision -> Invisibility
             }
-        } else if(ingredient == Material.GLOWSTONE_DUST){
+        } else if(ingredient.getType() == Material.GLOWSTONE_DUST){
             boosted = true;
             extended = false;
-        } else if(ingredient == Material.REDSTONE){
+        } else if(ingredient.getType() == Material.REDSTONE){
             extended = true;
             boosted = false;
-        } else if(ingredient == Material.SULPHUR){
+        } else if(ingredient.getType() == Material.SULPHUR){
             if (effect == 0 || splash){
                 return -1;
             } else {
                 splash = true;
             }
         } else if (effect == 0){
-            switch (ingredient){
+            switch (ingredient.getType()){
                 case MAGMA_CREAM:   effect = 3; break;
                 case SUGAR:         effect = 2; break;
-                case RAW_FISH:      effect = 13; break; //TODO check puffer
+                case RAW_FISH:
+                    if (ingredient.getDurability() == 3){
+                        effect = 13;
+                    } else {
+                        effect = -1;
+                    }; break;
                 case SPECKLED_MELON:effect = 5; break;
                 case SPIDER_EYE:    effect = 4; break;
                 case GOLDEN_CARROT: effect = 6; break;
