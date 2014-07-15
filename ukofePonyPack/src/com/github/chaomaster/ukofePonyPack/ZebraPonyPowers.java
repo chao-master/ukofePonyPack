@@ -21,7 +21,6 @@ package com.github.chaomaster.ukofePonyPack;
 
 import java.io.File;
 import java.util.HashMap;
-import org.bukkit.Material;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -31,18 +30,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.BrewerInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 public class ZebraPonyPowers extends PonyPowers {
 
+    private HashMap<Player,PortableBrewing> portableBrewingMap;
+    
+    //TODO: Load and save the brewing infomation to a file
 	public ZebraPonyPowers(ukofePonyPack plugin) {
 		super(plugin);
+        portableBrewingMap = new HashMap<Player,PortableBrewing>();
 	}
     
 	public boolean reloadConfig() {
@@ -72,12 +70,16 @@ public class ZebraPonyPowers extends PonyPowers {
 	}
     
     @EventHandler
-    public void onCloseInventory(final InventoryCloseEvent event){        
+    public void onCloseInventory(InventoryCloseEvent event){
+        final Player player = (Player) event.getPlayer();
         if (isOfActiveType(event.getPlayer())) {
             if (event.getInventory().getType() == InventoryType.CRAFTING){
+                if (!portableBrewingMap.containsKey(player)){
+                    portableBrewingMap.put(player, new PortableBrewing(player,plugin));
+                }
                 new BukkitRunnable() {
                     public void run() {
-                        new PortableBrewing(event.getPlayer(),plugin).showOwner();
+                        portableBrewingMap.get(player).showOwner();
                     }
                 }.runTask(plugin);
             }

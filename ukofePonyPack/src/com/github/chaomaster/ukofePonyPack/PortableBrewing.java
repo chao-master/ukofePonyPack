@@ -4,12 +4,10 @@
  */
 package com.github.chaomaster.ukofePonyPack;
 
-import java.util.Arrays;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -53,7 +51,8 @@ public class PortableBrewing implements Listener {
                         progress = 0;
                     } else if (progress >= 400) {
                         progress = 0;
-                        inventory.clear(3);
+                        ItemStack ingredient = inventory.getItem(3);
+                        ingredient.setAmount(ingredient.getAmount()-1);
                         for(int i=0;i<3;i++){
                             if (brewTo[i] != -1){
                                 inventory.setItem(i, new ItemStack(Material.POTION,1,brewTo[i]));
@@ -151,6 +150,11 @@ public class PortableBrewing implements Listener {
         if (effect != 0 || boosted || extended){
             awkard = false;
         }
-        return effect+(awkard?0x10:0)+(boosted?0x20:0)+(extended?0x40:0)+(drinkable?0x2000:0)+(splash?0x4000:0);
+        int rtn = effect+(awkard?0x10:0)+(boosted?0x20:0)+(extended?0x40:0)+(drinkable?0x2000:0)+(splash?0x4000:0);
+        if (rtn == current){
+            return -1;
+        } else {
+            return rtn;
+        }
     }
 }
