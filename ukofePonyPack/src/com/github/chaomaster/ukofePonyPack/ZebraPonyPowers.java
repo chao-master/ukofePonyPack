@@ -20,20 +20,33 @@
 package com.github.chaomaster.ukofePonyPack;
 
 import java.io.File;
+import java.util.HashMap;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class ZebraPonyPowers extends PonyPowers {
 
+    private HashMap<Player,PortableBrewing> portableBrewingMap;
+    
+    //TODO: Load and save the brewing infomation to a file
 	public ZebraPonyPowers(ukofePonyPack plugin) {
 		super(plugin);
+        portableBrewingMap = new HashMap<Player,PortableBrewing>();
 	}
-
+    
 	public boolean reloadConfig() {
 		File configFile = new File(this.plugin.getDataFolder(),
 				"ZebraConfig.yml");
@@ -59,4 +72,46 @@ public class ZebraPonyPowers extends PonyPowers {
 		}
 		event.setCancelled(true);
 	}
+    
+    @EventHandler
+	public void onPlayerQuitEvent(PlayerQuitEvent event) {
+		if (portableBrewingMap.containsKey(event.getPlayer())){
+            portableBrewingMap.get(event.getPlayer()).saveAndEnd();
+            portableBrewingMap.remove(event.getPlayer());
+        }
+	}
+
+	@EventHandler
+	public void onPlayerKickEvent(PlayerKickEvent event) {
+		if (portableBrewingMap.containsKey(event.getPlayer())){
+            portableBrewingMap.get(event.getPlayer()).saveAndEnd();
+            portableBrewingMap.remove(event.getPlayer());
+        }
+	}
+    
+    @EventHandler
+    public void onCloseInventory(InventoryCloseEvent event){
+        final Player player = (Player) event.getPlayer();
+        if (isOfActiveType(event.getPlayer())) {
+            if (event.getInventory().getType() == InventoryType.CRAFTING){
+                if (!portableBrewingMap.containsKey(player)){
+                    portableBrewingMap.put(player, new PortableBrewing(player,plugin));
+                }
+                new BukkitRunnable() {
+                    public void run() {
+                        portableBrewingMap.get(player).showOwner();
+                    }
+                }.runTask(plugin);
+            }
+        }
+    }
+    
+    //Bug work around for https://bukkit.atlassian.net/browse/BUKKIT-1929
+    //Works by disabling shift click.
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryClick(InventoryClickEvent event){
+        if(event.isShiftClick() && event.getInventory().getHolder() == null){
+            event.setCancelled(true);
+        }
+    }
 }
