@@ -4,8 +4,15 @@
  */
 package com.github.chaomaster.ukofePonyPack;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -29,10 +36,20 @@ public class PortableBrewing implements Listener {
     private short[] brewTo = {-1,-1,-1};
     private boolean isBrewing;
     
-    public PortableBrewing(HumanEntity owner,final Plugin plugin){
+    public PortableBrewing(Player owner,final Plugin plugin){
         this.owner = owner;
         this.inventory = owner.getServer().createInventory(null, InventoryType.BREWING);
         this.plugin = plugin;
+        
+        File saveFile = new File(this.plugin.getDataFolder(),"portableBrew.yml");
+        YamlConfiguration save = YamlConfiguration.loadConfiguration(saveFile);
+        if(save.contains(owner.getName())){
+            inventory.setContents(save.getList(owner.getName()+".slots").toArray(new ItemStack[4]));
+            if(inventory.getItem(3) != null){
+                lastSlots[3] = inventory.getItem(3);
+            };
+            progress = save.getInt(owner.getName()+".progress");
+        }
         
         this.brewTask = new BukkitRunnable() {
             public void run() {
@@ -72,6 +89,19 @@ public class PortableBrewing implements Listener {
     
     public void showOwner(){
         owner.openInventory(inventory);
+    }
+    
+    public void saveAndEnd(){
+        brewTask.cancel();
+        File saveFile = new File(this.plugin.getDataFolder(),"portableBrew.yml");
+        YamlConfiguration save = YamlConfiguration.loadConfiguration(saveFile);
+        save.set(owner.getName()+".slots",lastSlots); //No idea if saving item stacks like this works
+        save.set(owner.getName()+".progress",progress);
+        try {
+            save.save(saveFile);
+        } catch (IOException ex) {
+            plugin.getLogger().log(Level.SEVERE, "IO error saving portable brewing stand", ex);
+        }
     }
     
     private short brewHelper(int slot){

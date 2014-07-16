@@ -30,6 +30,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -67,6 +69,22 @@ public class ZebraPonyPowers extends PonyPowers {
 			}
 		}
 		event.setCancelled(true);
+	}
+    
+    @EventHandler
+	public void onPlayerQuitEvent(PlayerQuitEvent event) {
+		if (portableBrewingMap.containsKey(event.getPlayer())){
+            portableBrewingMap.get(event.getPlayer()).saveAndEnd();
+            portableBrewingMap.remove(event.getPlayer());
+        }
+	}
+
+	@EventHandler
+	public void onPlayerKickEvent(PlayerKickEvent event) {
+		if (portableBrewingMap.containsKey(event.getPlayer())){
+            portableBrewingMap.get(event.getPlayer()).saveAndEnd();
+            portableBrewingMap.remove(event.getPlayer());
+        }
 	}
     
     @EventHandler
