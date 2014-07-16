@@ -27,7 +27,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -101,6 +103,15 @@ public class ZebraPonyPowers extends PonyPowers {
                     }
                 }.runTask(plugin);
             }
+        }
+    }
+    
+    //Bug work around for https://bukkit.atlassian.net/browse/BUKKIT-1929
+    //Works by disabling shift click.
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryClick(InventoryClickEvent event){
+        if(event.isShiftClick() && event.getInventory().getHolder() == null){
+            event.setCancelled(true);
         }
     }
 }
